@@ -621,3 +621,33 @@ export const travel = pgTable("travel", {
     .notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const replyDraft = pgTable("replyDraft", {
+    id: uuid("id").notNull().defaultRandom(),
+    ticketId: uuid("ticket_id")
+      .notNull()
+      .references(() => ticket.id),
+    content: text("content").notNull(),
+    fromName: text("from_name").notNull(),
+    fromEmail: text("from_email").notNull(),
+    tags: text("tags").array().notNull().default([]),
+    description: text("description"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    userId: uuid("user_id")
+      .references(() => user.id)
+      .notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.id] }),
+    ticketRef: foreignKey({
+      columns: [table.ticketId],
+      foreignColumns: [ticket.id],
+    }),
+    userIdRef: foreignKey({
+      columns: [table.userId],
+      foreignColumns: [user.id],
+    }),
+  })
+});
+
+export type ReplyDraft = InferSelectModel<typeof replyDraft>;
